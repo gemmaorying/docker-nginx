@@ -1,0 +1,44 @@
+version: '3'
+services:
+  mysql:
+    restart: always
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_USER: gemma
+      MYSQL_PASSWORD: "123456"
+    volumes:
+      - "./db:/var/lib/mysql"
+      - "./conf/my.cnf:/etc/my.cnf"
+      - "./init:/docker-entrypoint-initdb.d/"
+  backend:
+    restart: always
+    build:      
+      context: .
+      dockerfile: ./node-test/Dockerfile
+    ports:
+      - "3307:3307"
+    depends_on:
+      - mysql
+  bankend_a:
+    restart: always
+    build:
+      context: .
+      dockerfile: ./node-test/Dockerfile
+    ports:
+      - "3308:3307"
+    depends_on:
+      - mysql
+  frontend:
+    build:
+      context: ./react-test
+      dockerfile: deploy/Dockerfile
+    restart: always
+    ports:
+      - "5003:3000"
+    depends_on:
+      - backend
+      - bankend_a
+
